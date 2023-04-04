@@ -1,0 +1,169 @@
+type Profile @entity {
+  id: ID!
+  "Number of profile"
+  profileId: BigInt!
+  "Address from the creator profile"
+  creator: Creator!
+  "Address from the owner creator profile"
+  owner: Account!
+  "User attempting to follow the profile should be issued a Follow NFT"
+  followNFT: Bytes
+  "IPFS has the follow data"
+  followNFTURI: String # string
+  "Nickname of the profile"
+  handle: String # string
+  "URI image of the profile"
+  imageURI: String # string
+  "Date created profile"
+  createdAt: BigInt
+  "Follow Module Address"
+  followModule: Bytes
+  "Follow Module Return Data"
+  followModuleReturnData: Bytes
+  "Dispatcher address allowed to post, comment, mirror, set follow module and change the profile picture on behalf of the owner."
+  dispatcher: Bytes
+  "Last Date modify profile"
+  lastUpdated: BigInt!
+  "Total mirrors"
+  totalMirrors: BigInt!
+  "Total posts"
+  totalPosts: BigInt!
+  "Total comments"
+  totalComments: BigInt!
+  "Total Followers"
+  totalFollowers: BigInt!
+  "Total Following From owner Account"
+  totalFollowings: BigInt!
+  "List of followers Account"
+  followers: [Account!]!
+  "List of following Profiles"
+  followings: [Profile!]!
+  "List of comments"
+  comments: [Comment!] @derivedFrom(field: "fromProfile")
+  "List of post"
+  posts: [Post!] @derivedFrom(field: "fromProfile")
+  "List of Mirrors"
+  mirrors: [Mirror!] @derivedFrom(field: "fromProfile")
+}
+
+type Account @entity {
+  id: ID!
+  "Address"
+  address: Bytes!
+  "Default Profile"
+  defaultProfile: Profile
+  "List of Id profiles(String)"
+  profilesIds: [String!]!
+  "List of Profiles that own this account"
+  profiles: [Profile!] @derivedFrom(field: "owner")
+  "List of Followings Profiles"
+  following: [Profile!]!
+  "List of Following profiles"
+  totalFollowings: BigInt!
+}
+
+type Creator @entity {
+  id: ID!
+  "Address"
+  address: Bytes!
+  "Account Address is whitelisted"
+  isWhitelisted: Boolean!
+  "Date last modify Address"
+  lastUpdated: BigInt!
+}
+
+interface Publication @entity {
+  id: ID!
+  "Profile that created the publication"
+  fromProfile: Profile
+  "Publication Id"
+  pubId: BigInt!
+  referenceModule: Bytes!
+  referenceModuleReturnData: Bytes
+  "Date of creation"
+  timestamp: BigInt!
+}
+
+type Post implements Publication @entity {
+  id: ID!
+  "Profile that created the post"
+  fromProfile: Profile
+  "Publication Id"
+  pubId: BigInt!
+  referenceModule: Bytes!
+  referenceModuleReturnData: Bytes
+  "URI of the post content"
+  contentURI: String!
+  content: String
+  description: String
+  uriResult: Bytes
+  name: String
+  image: String
+  collectModule: Bytes!
+  collectModuleReturnData: Bytes
+  "Date of creation"
+  timestamp: BigInt!
+}
+
+type Mirror implements Publication @entity {
+  id: ID!
+  "Profile that created the post"
+  fromProfile: Profile
+  "Publication Id"
+  pubId: BigInt!
+  referenceModule: Bytes!
+  referenceModuleReturnData: Bytes
+  profileIdPointed: BigInt!
+  pubIdPointed: BigInt!
+  "Date of creation"
+  timestamp: BigInt!
+}
+
+type Comment implements Publication @entity {
+  id: ID!
+  "Profile that created the post"
+  fromProfile: Profile
+  "Publication Id"
+  pubId: BigInt!
+  referenceModule: Bytes!
+  referenceModuleReturnData: Bytes
+  "URI of the post content"
+  contentURI: String!
+  profileIdPointed: BigInt!
+  pubIdPointed: BigInt!
+  collectModule: Bytes
+  collectModuleReturnData: Bytes
+  "Date of creation"
+  timestamp: BigInt!
+}
+
+type Follow @entity {
+  id: ID!
+  fromAccount: Account
+
+  fromProfileSTR: String
+  toProfile: [Profile!]
+  timestamp: BigInt
+}
+
+type FollowNFTTransferred @entity {
+  id: ID!
+  profileId: BigInt
+  followNFTID: BigInt
+  from: Bytes
+  to: Bytes
+  timestamp: BigInt
+  data: String
+}
+
+type EpnsNotificationCounter @entity {
+  id: ID!
+  totalCount: BigInt!
+}
+
+type EpnsPushNotification @entity {
+  id: ID!
+  notificationNumber: BigInt!
+  recipient: String!
+  notification: String!
+}
